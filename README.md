@@ -37,6 +37,7 @@
 |  11/13/2019 | Vikash Budhan Forked |
 |  11/13/2019 | Ferhat Yilmaz added 4 tests to Statistics|
 |  11/12/2019 | Ferhat Yilmaz added 4 tests to Statistics|
+|  11/10/2019 | Vikash Budhan added math functions|
 |  11/07/2019 | Vikash Budhan created files for Calculator|
 |  11/03/2019 | Ferhat Yilmaz added math functions|
 |  10/31/2019 | Ferhat Yilmaz created files for Calculator|
