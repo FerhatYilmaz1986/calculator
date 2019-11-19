@@ -35,8 +35,8 @@
 |  11/13/2019 | Vikash Budhan added CSV files|
 |  11/13/2019 | Vikash Budhan added 6 test to Statistics|
 |  11/13/2019 | Vikash Budhan Forked |
-|  11/13/2019 | Ferhat Yilmaz added 4 tests to Statistics|
-|  11/12/2019 | Ferhat Yilmaz added 4 tests to Statistics|
+|  11/13/2019 | Ferhat Yilmaz added std.dev,z-core,std-score,corr_coeff tests to Statistics|
+|  11/12/2019 | Ferhat Yilmaz added pop.mean,meadian,mode,pop variance tests to Statistics|
 |  11/10/2019 | Vikash Budhan added math functions|
 |  11/07/2019 | Vikash Budhan created files for Calculator|
 |  11/03/2019 | Ferhat Yilmaz added math functions|
