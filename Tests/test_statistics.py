@@ -58,7 +58,7 @@ class MyTestCase(unittest.TestCase):
            self.assertAlmostEqual(self.statistics.std_score(row['Value 1'], row['Value 2'], row['Value 3']), result)
            self.assertAlmostEqual(self.statistics.result, result)
 
-    def test_corr_coef(self):
+    def corr_coef(self):
         test_data = CsvReader("Tests/Data/corr_coef.csv").data
         for row in test_data:
            result = [float(row['Result'])]
@@ -81,21 +81,21 @@ class MyTestCase(unittest.TestCase):
 
     def test_sample_st_deviation(self):
         test_data = CsvReader('Tests/Data/just_age.csv').data
-        test_result = CsvReader('Test/Data/Age_Results.csv').data
+        test_result = CsvReader('Tests/Data/Age_Results.csv').data
         for row in test_data:
             self.assertEqual(self.statistics.p_value, float(row['Sample SD']))
             self.assertEqual(self.statistics.result, test_result(row['Sample SD']))
 
     def test_pop_standard_dev(self):
         test_data = CsvReader('Tests/Data/just_age.csv').data
-        test_result = CsvReader('Test/Data/Age_Results.csv').data
+        test_result = CsvReader('Tests/Data/Age_Results.csv').data
         for row in test_data:
             self.assertEqual(self.statistics.p_value, float(row['Sample SD']))
             self.assertEqual(self.statistics.result, test_result(row['Sample SD']))
 
     def test_proportion(self):
         test_data = CsvReader('Tests/Data/just_age.csv').data
-        test_result = CsvReader('Test/Data/Age_Results.csv').data
+        test_result = CsvReader('Tests/Data/Age_Results.csv').data
         for row in test_data:
             self.assertEqual(self.statistics.p_value, float(row['Proportion']))
             self.assertEqual(self.statistics.result, test_result(row['Proportion']))
