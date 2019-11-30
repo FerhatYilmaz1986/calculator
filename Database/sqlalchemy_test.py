@@ -95,6 +95,17 @@ session.add_all([o1, o2])
 session.new
 session.commit()
 
+o3 = Order(customer=c1)
+orderline1 = OrderLine(item=i1, quantity=5)
+orderline2 = OrderLine(item=i2, quantity=10)
+
+o3.order_lines.append(orderline1)
+o3.order_lines.append(orderline2)
+
+session.add_all([o3])
+
+session.commit()
+
 # Create all tables in the engine. This is equivalent to "Create Table"
 # statements in raw SQL.
 Base.metadata.create_all(engine)
