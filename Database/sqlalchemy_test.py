@@ -65,6 +65,56 @@ class Address(Base):
     person_id = Column(Integer, ForeignKey('person.id'))
     person = relationship("Person", backref="addresses")
 
+def dispatch_order(order_id):
+    # check whether order_id is valid or not
+    order = session.query(Order).get(order_id)
+
+    if not order:
+        raise ValueError("Invalid order id: {}.".format(order_id))
+
+    if order.date_shipped:
+        print("Order already shipped.")
+        return
+
+    try:
+        for i in order.order_lines:
+            i.item.quantity = i.item.quantity - i.quantity
+
+        order.date_shipped = datetime.now()
+        session.commit()
+        print("Transaction completed.")
+
+    except IntegrityError as e:
+        print(e)
+        print("Rolling back ...")
+        session.rollback()
+        print("Transaction failed.")
+
+Base.metadata.create_all(engine)
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+c1 = Customer(first_name='Toby',
+              last_name='Miller',
+              username='tmiller',
+              email='tmiller@example.com',
+              address='1662 Kinney Street',
+              town='Wolfden'
+              )
+
+c2 = Customer(first_name='Scott',
+              last_name='Harvey',
+              username='scottharvey',
+              email='scottharvey@example.com',
+              address='424 Patterson Street',
+              town='Beckinsdale'
+              )
+
+session.add(c1)
+session.add(c2)
+session.new
+session.commit()
 
 c3 = Customer(
     first_name="John",
@@ -147,53 +197,93 @@ print('-------')
 for ol in c1.orders[1].order_lines:
     ol.id, ol.item, ol.quantity
 
-# Create all tables in the engine. This is equivalent to "Create Table"
-# statements in raw SQL.
-Base.metadata.create_all(engine)
+session.query(Item).filter(Item.name.ilike("wa%")).all()
+session.query(Item).filter(Item.name.ilike("wa%")).order_by(Item.cost_price).all()
 
-Base.metadata.bind = engine
+# descending order
+session.query(Item).filter(Item.name.ilike("wa%")).order_by(desc(Item.cost_price)).all()
 
-DBSession = sessionmaker(bind=engine)
-# A DBSession() instance establishes all conversations with the database
-# and represents a "staging zone" for all the objects loaded into the
-# database session object. Any change made against the objects in the
-# session won't be persisted into the database until you call
-# session.commit(). If you're not happy about the changes, you can
-# revert all of them back to the last commit by calling
-# session.rollback()
-session = DBSession()
+session.query(Customer).join(Order).all()
 
-# Insert a Person in the person table
-new_person1 = Person(name='Kash')
-# Adds person to session
-session.add(new_person1)
+# print(session.query(Customer).join(Order))
 
-new_person2 = Person(name='Armando')
-session.add(new_person1)
+session.query(Customer.id, Customer.username, Order.id).join(Order).all()
 
-new_person3 = Person(name='John')
-session.add(new_person1)
-#Commit saves the changes
+# find all customers who either live in Peterbrugh or Norfolk
+
+session.query(Customer).filter(or_(
+    Customer.town == 'Peterbrugh',
+    Customer.town == 'Norfolk'
+)).all()
+
+# find all customers whose first name is John and live in Norfolk
+
+session.query(Customer).filter(and_(
+    Customer.first_name == 'John',
+    Customer.town == 'Norfolk'
+)).all()
+
+# find all johns who don't live in Peterbrugh
+
+session.query(Customer).filter(and_(
+    Customer.first_name == 'John',
+    not_(
+        Customer.town == 'Peterbrugh',
+    )
+)).all()
+
+session.query(Order).filter(Order.date_shipped == None).all()
+session.query(Order).filter(Order.date_shipped != None).all()
+session.query(Customer).filter(Customer.first_name.in_(['Toby', 'Sarah'])).all()
+session.query(Customer).filter(Customer.first_name.notin_(['Toby', 'Sarah'])).all()
+session.query(Item).filter(Item.cost_price.between(10, 50)).all()
+session.query(Item).filter(not_(Item.cost_price.between(10, 50))).all()
+session.query(Item).filter(Item.name.like("%r")).all()
+session.query(Item).filter(Item.name.ilike("w%")).all()
+session.query(Item).filter(not_(Item.name.like("W%"))).all()
+session.query(Customer).limit(2).all()
+session.query(Customer).filter(Customer.address.ilike("%avenue")).limit(2).all()
+
+# find the number of customers lives in each town
+
+session.query(
+    func.count("*").label('town_count'),
+    Customer.town
+).group_by(Customer.town).having(func.count("*") > 2).all()
+
+session.query(Customer.town).filter(Customer.id < 10).all()
+session.query(Customer.town).filter(Customer.id < 10).distinct().all()
+
+session.query(
+    func.count(distinct(Customer.town)),
+    func.count(Customer.town)
+).all()
+
+s1 = session.query(Item.id, Item.name).filter(Item.name.like("Wa%"))
+s2 = session.query(Item.id, Item.name).filter(Item.name.like("%e%"))
+s1.union(s2).all()
+
+s1.union_all(s2).all()
+
+i = session.query(Item).get(8)
+i.selling_price = 25.91
+session.add(i)
 session.commit()
 
-# Insert an Address in the address table
-addresses = [
-    Address(post_code='00001', person=new_person1),
-    Address(post_code='00002', person=new_person2),
-    Address(post_code='00003', person=new_person3),
-]
+# update quantity of all quantity of items to 60 whose name starts with 'W'
 
-for address in addresses:
-    session.add(address)
-    session.commit()
+session.query(Item).filter(
+    Item.name.ilike("W%")
+).update({"quantity": 60}, synchronize_session='fetch')
+session.commit()
 
-all_people = session.query(Person).join(Address).all()
+session.query(Customer).filter(text("first_name = 'John'")).all()
 
-for person in all_people:
-    pprint(person.__dict__)
-    for address in person.addresses:
-        pprint(address.__dict__)
+session.query(Customer).filter(text("town like 'Nor%'")).all()
 
-all_addresses = session.query(Address).join(Person).all()
-for address in all_addresses:
-    print(f'{address.person.name} has a postal code of {address.post_code}')
+session.query(Customer).filter(text("town like 'Nor%'")).order_by(text("first_name, id desc")).all()
+
+session.commit()
+
+dispatch_order(1)
+dispatch_order(2)
