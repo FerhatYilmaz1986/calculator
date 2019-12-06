@@ -288,3 +288,16 @@ session.commit()
 
 dispatch_order(1)
 dispatch_order(2)
+
+#Count method
+session.query(Customer).count() # get the total number of records in the customers table
+session.query(Item).count()  # get the total number of records in the items table
+session.query(Order).count()  # get the total number of records in the orders table
+#First method
+session.query(Customer).first()
+session.query(Item).first()
+session.query(Order).first()
+#Get method
+session.query(Customer).get(1)
+session.query(Item).get(1)
+session.query(Order).get(100)
